@@ -1,0 +1,20 @@
+{
+  "name": "ssr-framework",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "scripts": {
+    "dev": "bun --watch run ./index.ts ",
+    "build:server": "bun build ./index.ts --target=bun --outfile=server.js",
+    "clean:server": "rm -rf ./server.js",
+    "build": "bun run build:server"
+  },
+  "dependencies": {
+    "terser": "^5.27.0"
+  }
+}
