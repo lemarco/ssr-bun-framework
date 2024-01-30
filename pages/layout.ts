@@ -1,11 +1,8 @@
-const html = (arg: TemplateStringsArray) => `${arg}`;
-//
+import { html } from "../utils/html";
 
-export const server = () => {
-	return /*html*/ html`
-    <div id='layout' class="">
-    <div></div>
-        <!--slot-->
-    </div>
-`;
+export const server = (): string => {
+	return html`<div id="layout-1" className="">
+			
+			<!--slot-->
+		</div>`;
 };
