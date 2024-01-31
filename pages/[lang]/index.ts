@@ -7,10 +7,9 @@ export const server = (): string => {
 	const part = arr
 		.map((el, idx) => `<div>${el.b} index = ${idx}</div>`)
 		.join("");
-	console.log(part);
 
 	return html`<div>
-	${part}
+		${part}
 		<h1 id="lol">Hello Vite!</h1>
 		<div className="card">
 			<button id="counter" type="button" />
