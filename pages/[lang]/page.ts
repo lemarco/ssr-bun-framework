@@ -17,3 +17,10 @@ export const server = (): string => {
 		<p className="read-the-docs">Click on the Vite logo to learn more</p>
 	</div>`;
 };
+
+export const ssrPage = () => {
+	return html``;
+};
+export const staticPage = () => {
+	return html``;
+};
