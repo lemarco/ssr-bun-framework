@@ -6,4 +6,5 @@ await server({
 	base: "http://localhost:3000",
 	dist: "./dist",
 	watch: true,
+	i18n: true,
 });

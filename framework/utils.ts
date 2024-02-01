@@ -1,7 +1,7 @@
 import { readdirSync, existsSync } from "node:fs";
 import { $ } from "bun";
 export const isClient = (input) => input.split("/").at(-1) === "client.ts";
-export const isServer = (input) => input.split("/").at(-1) === "index.ts";
+export const isServer = (input) => input.split("/").at(-1) === "page.ts";
 export const isLayout = (input) => input.split("/").at(-1) === "layout.ts";
 export const isDot = (input: string) => input === ".";
 const FileTypes = [
@@ -42,3 +42,11 @@ export const isTsOrTsx = (file: string) =>
 export const filterTsFiles = (list: string[]) => list.filter(isTsOrTsx);
 export const filterFolders = (list: string[]) =>
 	list.filter((file) => !isTsOrTsx(file));
+export const getLastElement = (path) => path.split("/").filter(Boolean).at(-1);
+export const hasExt = (path) => path.includes(".");
+export const isJs = (ext) => ext.endsWith(".js");
+
+const mimeTypes = {};
+export const getMime = (type: string) => {
+	return mimeTypes[type] || "text/plain";
+};
