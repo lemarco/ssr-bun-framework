@@ -238,12 +238,26 @@ export class Node {
 							currentLayout = scripts.currentLayoutScripts.pop() as string;
 						}
 					}
-
+					let currentScript = "";
+					if (
+						existsSync(
+							resolve(
+								`./pages/${urlSegments.join("/")}`.replace(
+									"page.ts",
+									"client.ts",
+								),
+							),
+						)
+					) {
+						if (scripts.currentClientScripts.length) {
+							currentScript = scripts.currentClientScripts.pop() as string;
+						}
+					}
 					const newNode = new Node({
 						name: currentPart,
 						isLeaf: true,
 						// layouts: scripts.currentLayoutScripts,
-						clients: scripts.currentClientScripts,
+						clients: [...scripts.currentClientScripts, currentScript],
 
 						parallelPaths: {
 							[scripts.parallelSegment]: resolve(
@@ -307,6 +321,14 @@ export class Node {
 					if (!node.parallelLayouts) {
 						node.parallelLayouts = {};
 					}
+					if (scripts.currentClientScripts.length) {
+						// biome-ignore lint/complexity/noForEach: <explanation>
+						scripts.currentClientScripts.forEach((sc) =>
+							node.clients?.includes(sc) ? undefined : node.clients?.push(sc),
+						);
+					}
+
+					// node.clients?.push(currentScript);
 					node.parallelLayouts[scripts.parallelSegment] =
 						scripts.currentLayoutScripts;
 					// node.parallelLayouts[scripts.parallelSegment] = newLayouts;
@@ -651,9 +673,9 @@ export class FileSystemRouter {
 		for (const file of this.files) {
 			this.routesMap.add(file);
 		}
-		console.log("full print ----------- start ");
+		//		console.log("full print ----------- start ");
 		this.routesMap.print();
-		console.log("full print -----------end ");
+		// console.log("full print -----------end ");
 		//console.log(this.routesMap.dynamic?.[1].group?.get("(blog)"));
 	}
 	// optimize() {
@@ -661,7 +683,7 @@ export class FileSystemRouter {
 	// 	return this;
 	// }
 	match(url: string) {
-		console.log("url in match = ", url);
+		//	console.log("url in match = ", url);
 		return this.routesMap.find(url);
 	}
 }

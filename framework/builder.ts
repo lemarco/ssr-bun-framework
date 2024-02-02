@@ -27,8 +27,8 @@ export const builder = async (input: string, outPath: string) => {
 		},
 	});
 	console.log("output =", output.success);
-	// if ()
-	// console.log("output.outputs[0]= ", output.outputs[0]);
+
+
 	if (isClient(input)) {
 		await Bun.write(
 			output.outputs[0].path,

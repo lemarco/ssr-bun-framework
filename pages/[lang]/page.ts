@@ -8,19 +8,14 @@ export const server = (): string => {
 		.map((el, idx) => `<div>${el.b} index = ${idx}</div>`)
 		.join("");
 
-	return html`<div>
+	return html`
+	<div>
 		${part}
-		<h1 id="lol">Hello Vite!</h1>
+		<h1 id="lol">HOME PAGE</h1>
 		<div className="card">
-			<button id="counter" type="button" />
+			<button id="counter" type="button"></button>
 		</div>
 		<p className="read-the-docs">Click on the Vite logo to learn more</p>
-	</div>`;
-};
-
-export const ssrPage = () => {
-	return html``;
-};
-export const staticPage = () => {
-	return html``;
+	</div>
+	`;
 };

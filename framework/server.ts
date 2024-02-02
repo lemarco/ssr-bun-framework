@@ -18,46 +18,46 @@ import {
 import { FileSystemRouter, Node as FileNode } from "./router";
 import { watcher } from "./watcher";
 
-const buildTemplate = async (path: string[]) => {
-	let currentTemplate = "";
-	let link = fileMap;
-	for (let i = 0; i < path.length; i++) {
-		const chunk = path[i];
-		const isInnerLayout = link[chunk] && link["layout.ts"];
-		if (isInnerLayout) {
-			const innerLayout = await (await import(link["layout.ts"])).server();
-			if (currentTemplate) {
-				currentTemplate = currentTemplate.replace("<!--slot-->", innerLayout);
-			} else {
-				currentTemplate = innerLayout;
-			}
-		}
+// const buildTemplate = async (path: string[]) => {
+// 	let currentTemplate = "";
+// 	let link = fileMap;
+// 	for (let i = 0; i < path.length; i++) {
+// 		const chunk = path[i];
+// 		const isInnerLayout = link[chunk] && link["layout.ts"];
+// 		if (isInnerLayout) {
+// 			const innerLayout = await (await import(link["layout.ts"])).server();
+// 			if (currentTemplate) {
+// 				currentTemplate = currentTemplate.replace("<!--slot-->", innerLayout);
+// 			} else {
+// 				currentTemplate = innerLayout;
+// 			}
+// 		}
 
-		link = link[chunk];
-	}
-	return currentTemplate;
-};
-const getPageFiles = async (path: string[]) => {
-	let link = fileMap;
-	const clientScripts: string[] = [];
-	let currentPath = "";
-	for (const chunk of path) {
-		currentPath += chunk;
-		if (link["client.ts"]) {
-			clientScripts.push(link["client.ts"]);
-		}
-		if (!link[chunk] || chunk.endsWith(".ts")) {
-			return {
-				clientScripts,
-				server: link["index.ts"]
-					? await (await import(link["index.ts"])).server()
-					: "",
-			};
-		}
-		link = link[chunk];
-	}
-	return null;
-};
+// 		link = link[chunk];
+// 	}
+// 	return currentTemplate;
+// };
+// const getPageFiles = async (path: string[]) => {
+// 	let link = fileMap;
+// 	const clientScripts: string[] = [];
+// 	let currentPath = "";
+// 	for (const chunk of path) {
+// 		currentPath += chunk;
+// 		if (link["client.ts"]) {
+// 			clientScripts.push(link["client.ts"]);
+// 		}
+// 		if (!link[chunk] || chunk.endsWith(".ts")) {
+// 			return {
+// 				clientScripts,
+// 				server: link["index.ts"]
+// 					? await (await import(link["index.ts"])).server()
+// 					: "",
+// 			};
+// 		}
+// 		link = link[chunk];
+// 	}
+// 	return null;
+// };
 
 const startBuild = async (path = "./pages", outpath = "./dist") => {
 	const list = (await allNamesInFolder(path)).filter(Boolean);
@@ -73,6 +73,7 @@ const startBuild = async (path = "./pages", outpath = "./dist") => {
 		}
 	}
 };
+
 type ServerArgs = {
 	port: number;
 	routes?: string;
@@ -82,11 +83,11 @@ type ServerArgs = {
 	i18n?: boolean;
 	i18nResources?: string;
 };
-const getScriptSrc = (url: string): string => {
-	return "";
-};
+// const getScriptSrc = (url: string): string => {
+// 	return "";
+// };
 const getScriptContent = async (url: string): Promise<string> => {
-	console.log("getScriptContent = ", `./dist${url}`);
+	// console.log("getScriptContent = ", `./dist${url}`);
 	return await Bun.file(`./dist${url}`).text();
 };
 const handleStatic = async () => {
@@ -94,7 +95,7 @@ const handleStatic = async () => {
 };
 const generateSupportedLanguages = (resourcesPath = "./i18n"): string[] => {
 	const paths = readdirSync(resourcesPath);
-	console.log("generateSupportedLanguages = ", paths);
+	//console.log("generateSupportedLanguages = ", paths);
 	return paths;
 };
 
@@ -130,7 +131,7 @@ const prepareScriptsToDistPaths = (
 		}
 		if (isClient(p)) {
 			const withoutFile = p.replace("pages", "dist").replace("client.ts", "");
-			console.log("withoutFile= ", withoutFile);
+			// console.log("withoutFile= ", withoutFile);
 			const base: string[] = [];
 			const splitted = withoutFile.split("/");
 			let isDistFound = false;
@@ -143,7 +144,7 @@ const prepareScriptsToDistPaths = (
 				}
 			}
 			const baseRelative = `${base.join("/")}`;
-			console.log(baseRelative);
+			// console.log(baseRelative);
 			const list = readdirSync(withoutFile);
 			const fileName = list.find((f) => f.startsWith("client"));
 			return (baseRelative + fileName) as string;
@@ -178,7 +179,7 @@ const prepareScriptsToDistPaths = (
 const processLayouts = async (template: string, layouts: string[]) => {
 	let base = "";
 	for (const l of layouts) {
-		console.log("current layout = ", l);
+		//console.log("current layout = ", l);
 		const { layout } = await import(l);
 		if (!base) {
 			base = await layout();
@@ -350,56 +351,72 @@ export const server = async ({
 			} = res as FileNode;
 			if (parallelPaths) {
 				const paralles = Object.entries(parallelPaths);
-				console.log("paralles = ", paralles);
+				//console.log("paralles = ", paralles);
 				let baseCommonLayout = "";
 				const commonLayouts = cl?.length
 					? prepareScriptsToDistPaths(cl, dist)
 					: [];
+
 				const clients = prepareScriptsToDistPaths(clientsOrig, dist);
+
 				if (commonLayouts?.length) {
 					for (const l of commonLayouts) {
 						const { layout } = await import(l);
-						const template = await layout();
-						console.log("template =", template);
-						if (commonLayouts) {
-							baseCommonLayout.replace("<!--slot-->", template);
+						const renderedLayout = await layout();
+
+						if (baseCommonLayout) {
+							baseCommonLayout = baseCommonLayout.replace(
+								"<!--slot-->",
+								renderedLayout,
+							);
 						} else {
-							baseCommonLayout = template;
+							baseCommonLayout = renderedLayout;
 						}
 					}
 				}
-				console.log("baseCommonLayout !111 ==", baseCommonLayout);
+
 				for (const [name, path] of paralles) {
 					const preparedPath = prepareScriptsToDistPaths(path, dist);
 					const { server } = await import(preparedPath[0]);
 					const serverHtml = await server();
-					console.log("serverHtml =", serverHtml);
+					//	console.log("serverHtml =", serverHtml);
 					const thisNameLayouts = parallelLayouts?.[name];
 					let thisNameLayout = "";
 					if (thisNameLayouts) {
 						for (const l of thisNameLayouts) {
 							const { layout } = await import(l);
 							if (thisNameLayout) {
-								thisNameLayout.replace("<!--slot-->", await layout());
+								thisNameLayout = thisNameLayout.replace(
+									"<!--slot-->",
+									await layout(),
+								);
 							} else {
 								thisNameLayout = await layout();
 							}
 						}
+					}
 
-						// const layout = parallelLayouts?.[name]? await import() : ""
-					}
 					if (thisNameLayout) {
-						thisNameLayout.replace("<!--slot-->", serverHtml);
+						thisNameLayout = thisNameLayout.replace("<!--slot-->", serverHtml);
 					}
-					console.log("NEMED SLOT =", `<!--${name}-->`);
-					baseCommonLayout.replace(`<!--${name}-->`, thisNameLayout);
+
+					// if (name === "@right") {
+					// 	console.log("NEMED SLOT =", `<!--${name}-->`);
+					// }
+					baseCommonLayout = baseCommonLayout.replace(
+						`<!--${name}-->`,
+						thisNameLayout,
+					);
 				}
-				console.log("baseCommonLayout =", baseCommonLayout);
+				//	console.log("baseCommonLayout =", baseCommonLayout);
 				const allDeferScripts =
 					clients
-						.map((client) => `<script src=${base}/${client} defer></script>`)
+						.map((client) => `<script src="${base}/${client}"  defer></script>`)
 						.join("") || "";
-
+				//		console.log("----------------------");
+				//			console.log("allDeferScripts = ", allDeferScripts);
+				//			console.log("----------------------");
+				// console.log("BEFORE HTML = ", baseCommonLayout);
 				const html = template
 					.replace("<!--app-client-->", allDeferScripts)
 					.replace("<!--app-html-->", baseCommonLayout);
@@ -408,9 +425,9 @@ export const server = async ({
 					headers: { "Content-type": "text/html" },
 				});
 			}
-			console.log("MATCHED!!!!=", res);
-			console.log(clientsOrig);
-			console.log(layoutsOrig);
+			//		console.log("MATCHED!!!!=", res);
+			//		console.log(clientsOrig);
+			//		console.log(layoutsOrig);
 			const clients = prepareScriptsToDistPaths(clientsOrig, dist);
 			const layouts = prepareScriptsToDistPaths(layoutsOrig, dist);
 			// biome-ignore lint/style/noNonNullAssertion: <explanation>
@@ -422,16 +439,17 @@ export const server = async ({
 			// console.log("clients = ", clients);
 			const allDeferScripts =
 				clients
-					.map((client) => `<script src=${base}/${client} defer></script>`)
+					.map((client) => `<script src="${base}/${client}" defer></script>`)
 					.join("") || "";
-			console.log("AFTER SCRIPTS PROCESSING");
+			//	console.log("AFTER SCRIPTS PROCESSING");
 			const finalLayout = await processLayouts(
 				template.replace("<!--app-client-->", allDeferScripts),
+
 				layouts,
 			);
-			console.log("AFTER FINAL LAYOUT PROCESSIND PROCESSING");
+			//	console.log("AFTER FINAL LAYOUT PROCESSIND PROCESSING");
 			const html = await addPageToLayout(finalLayout, path[0]);
-			console.log("AFTE PAGE PROCESSING!!!");
+			//	console.log("AFTE PAGE PROCESSING!!!");
 			return new Response(html, {
 				headers: { "Content-type": "text/html" },
 			});

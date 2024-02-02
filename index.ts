@@ -7,4 +7,5 @@ await server({
 	dist: "./dist",
 	watch: true,
 	i18n: true,
+	i18nResources: "./i18n",
 });

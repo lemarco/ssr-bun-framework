@@ -14,5 +14,6 @@ export function html(
 		result += strings[counterAfter];
 		counterAfter++;
 	}
+
 	return result;
 }
